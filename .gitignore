@@ -1,0 +1,34 @@
+# Secrets
+.env.local
+*.key
+
+# Large, reproducible, or third-party payloads
+data/
+third_party/
+*.tfrecord
+*.nequip.zip
+*.nequip.pt2
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venvs/
+venv/
+.eggs/
+
+# Tooling
+.tools/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store

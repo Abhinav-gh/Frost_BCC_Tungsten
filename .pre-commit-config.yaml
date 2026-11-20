@@ -1,0 +1,28 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=2048"]
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.4
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: no-secrets-in-tracked-files
+        name: refuse an MP or GitHub token in a tracked file
+        entry: bash -c 'git diff --cached -U0 | grep -nE "(MP_API_KEY|GH_TOKEN|HF_TOKEN)\s*=\s*[\"'\''][A-Za-z0-9_]{16,}" && { echo "secret literal staged; put it in .env.local"; exit 1; } || exit 0'
+        language: system
+        pass_filenames: false

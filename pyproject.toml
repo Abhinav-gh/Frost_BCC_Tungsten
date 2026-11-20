@@ -1,0 +1,103 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "frost-md"
+dynamic = ["version"]
+description = "Incremental GNN inference for geometric rollouts: edge-local caching with conservative-by-construction staleness"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = [
+    "molecular-dynamics", "machine-learned-interatomic-potentials",
+    "equivariant-graph-neural-networks", "incremental-computation",
+    "approximate-computing", "inference-systems", "gpu",
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: System :: Distributed Computing",
+]
+dependencies = [
+    "torch>=2.11",
+    "numpy>=2.0",
+    "scipy>=1.14",
+    "ase>=3.26",
+    "h5py>=3.12",
+    "pandas>=2.2",
+    "tqdm>=4.67",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# The two model stacks are mutually exclusive: mace-torch pins e3nn==0.4.4
+# while nequip requires e3nn>=0.6. Install into separate environments.
+mace   = ["mace-torch==0.3.16", "torch-sim-atomistic>=0.6", "pymatgen>=2026.5", "mp-api>=0.46"]
+nequip = ["nequip==0.19.1", "nequip-allegro==0.8.3", "sevenn==0.13.0"]
+kernels = [
+    "cuequivariance-torch==0.11.1",
+    "cuequivariance-ops-torch-cu13==0.11.1",
+    "openequivariance==0.6.8",
+]
+analysis = ["matplotlib>=3.9", "phonopy>=4.0", "pyarrow>=18"]
+neighbors = ["vesin>=0.6", "matscipy>=1.2"]
+energy = ["nvidia-ml-py>=13"]
+dev = [
+    "pytest>=8.3", "pytest-cov>=6.0", "ruff>=0.9",
+    "mypy>=1.14", "pre-commit>=4.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/shashank/frost"
+Documentation = "https://github.com/shashank/frost/tree/main/docs"
+Issues = "https://github.com/shashank/frost/issues"
+
+[project.scripts]
+frost-fetch = "frost.cli:fetch_main"
+frost-verify = "frost.cli:verify_main"
+
+[tool.hatch.version]
+path = "src/frost/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/frost"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --strict-config"
+markers = [
+    "gpu: requires a CUDA device",
+    "slow: takes more than ~30 seconds",
+    "model: downloads or loads a pretrained checkpoint",
+]
+filterwarnings = ["ignore::FutureWarning", "ignore::UserWarning"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+src = ["src", "experiments", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "RUF", "NPY"]
+ignore = [
+    "E501",    # line length is handled by the formatter
+    "N806",    # physics notation: J, S, H are correct as locals
+    "N803",    # same for arguments
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**"       = ["S101"]
+"experiments/**" = ["T201"]   # experiments print
+
+[tool.mypy]
+python_version = "3.12"
+files = ["src/frost"]
+ignore_missing_imports = true
+warn_unused_configs = true

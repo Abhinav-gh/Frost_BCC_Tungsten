@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv python install 3.12
+      - name: Lint and format check
+        run: |
+          uvx ruff@0.9.4 check .
+          uvx ruff@0.9.4 format --check .
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv python install 3.12
+      - name: Install (CPU torch; no kernel backends on a runner)
+        run: |
+          uv venv --python 3.12
+          uv pip install --extra-index-url https://download.pytorch.org/whl/cpu torch
+          uv pip install -e ".[dev,neighbors]"
+      - name: Unit and integration tests
+        run: uv run pytest -q -m "not gpu and not model"
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Every claim in CLAIMS.md points at a file that exists
+        run: |
+          set -e
+          fail=0
+          grep -oE '`[^`]+\.(py|sh)`' CLAIMS.md | tr -d '`' | sort -u | while read -r f; do
+            [ -e "$f" ] || { echo "missing: $f"; fail=1; }
+          done
+          exit $fail

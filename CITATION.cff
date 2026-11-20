@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Frost: Incremental GNN Inference for Geometric Rollouts"
+abstract: >-
+  Edge-local caching with conservative-by-construction staleness for
+  machine-learned interatomic potentials and learned physics simulators.
+  Frost treats the message-passing state of a rollout GNN as a cache whose
+  invalidation predicate is derived from the physics of atomic motion, so that
+  energy drift admits a proved bound rather than an empirical hope.
+type: software
+license: MIT
+version: 0.1.0-dev
+date-released: "2026-09-11"
+repository-code: "https://github.com/shashank/frost"
+keywords:
+  - molecular dynamics
+  - machine-learned interatomic potentials
+  - equivariant graph neural networks
+  - incremental computation
+  - inference systems
+authors:
+  - name: "The Frost Authors"
